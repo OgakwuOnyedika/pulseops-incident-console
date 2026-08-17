@@ -48,4 +48,25 @@ describe('IncidentQueueTable Component', () => {
     expect(checkbox).toBeChecked();
     expect(screen.getByText(/1 incident selected/i)).toBeInTheDocument();
   });
+
+  it('preserves selected incidents when filter criteria still include the selected item', async () => {
+    const user = userEvent.setup();
+    render(<IncidentQueueTable onSelectIncident={() => {}} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('INC-101')).toBeInTheDocument();
+    });
+
+    const checkbox = screen.getByRole('checkbox', { name: /select incident inc-101/i });
+    await user.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    const criticalFilter = screen.getByRole('checkbox', { name: /filter severity critical/i });
+    await user.click(criticalFilter);
+
+    await waitFor(() => {
+      expect(screen.getByText('INC-101')).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: /select incident inc-101/i })).toBeChecked();
+    });
+  });
 });
